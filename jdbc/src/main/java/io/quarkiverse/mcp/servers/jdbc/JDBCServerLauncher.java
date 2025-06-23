@@ -25,9 +25,9 @@ public class JDBCServerLauncher {
         if (!hasJdbcUrl && System.getProperty("jdbc.url") == null && System.getenv("JDBC_URL") == null) {
             System.err.println("Error: JDBC URL is required.");
             System.err.println(
-                    "Usage: java -jar mcp-server-jdbc.jar --jdbc.url=<url> [--jdbc.user=<user>] [--jdbc.password=<password>]");
+                    "Usage: java -jar mcp-server-jdbc.jar --jdbc.url=<url> [--jdbc.user=<user>] [--jdbc.password=<password>] [--jdbc.readonly=<true|false>]");
             System.err.println(
-                    "Example: java -jar mcp-server-jdbc.jar --jdbc.url=\"jdbc:h2:mem:testdb\" --jdbc.user=\"sa\" --jdbc.password=\"\"");
+                    "Example: java -jar mcp-server-jdbc.jar --jdbc.url=\"jdbc:h2:mem:testdb\" --jdbc.user=\"sa\" --jdbc.password=\"\" --jdbc.readonly=true");
             System.exit(1);
         }
 

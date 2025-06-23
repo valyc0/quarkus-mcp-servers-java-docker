@@ -42,6 +42,9 @@ public class MCPServerJDBC {
     @ConfigProperty(name = "jdbc.password")
     Optional<String> jdbcPassword;
 
+    @ConfigProperty(name = "jdbc.readonly", defaultValue = "false")
+    boolean readOnly;
+
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(jdbcUrl, jdbcUser.orElse(null), jdbcPassword.orElse(null));
     }
@@ -76,6 +79,10 @@ public class MCPServerJDBC {
 
     @Tool(description = "Execute a INSERT, UPDATE or DELETE query on the jdbc database")
     String write_query(@ToolArg(description = "INSERT, UPDATE or DELETE SQL query to execute") String query) {
+        if (readOnly) {
+            throw new ToolCallException("Write operations are disabled in read-only mode", null);
+        }
+        
         if (query.strip().toUpperCase().startsWith("SELECT")) {
             throw new ToolCallException("SELECT queries are not allowed for write_query", null);
         }
@@ -114,6 +121,10 @@ public class MCPServerJDBC {
 
     @Tool(description = "Create new table in the jdbc database")
     String create_table(@ToolArg(description = "CREATE TABLE SQL statement") String query) {
+        if (readOnly) {
+            throw new ToolCallException("Table creation is disabled in read-only mode", null);
+        }
+        
         if (!query.strip().toUpperCase().startsWith("CREATE TABLE")) {
             throw new ToolCallException("Only CREATE TABLE statements are allowed", null);
         }
@@ -159,6 +170,7 @@ public class MCPServerJDBC {
             //info.put("username", metaData.getUserName());
             info.put("max_connections", String.valueOf(metaData.getMaxConnections()));
             info.put("read_only", String.valueOf(metaData.isReadOnly()));
+            info.put("mcp_server_readonly_mode", String.valueOf(readOnly));
             info.put("supports_transactions", String.valueOf(metaData.supportsTransactions()));
             info.put("sql_keywords", metaData.getSQLKeywords());
 

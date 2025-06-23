@@ -41,6 +41,12 @@ You can also specify a user and password separately, here for a PostgreSQL datab
 jbang jdbc@quarkiverse/quarkus-mcp-servers jdbc:postgresql://localhost:5432/sakila -u sakila -p p_ssW0rd
 ```
 
+For read-only access (prevents INSERT, UPDATE, DELETE, and CREATE TABLE operations):
+
+```shell
+jbang jdbc@quarkiverse/quarkus-mcp-servers jdbc:postgresql://localhost:5432/sakila -u sakila -p p_ssW0rd --jdbc.readonly=true
+```
+
 ## Downloadable databases
 
 JBang can download files from the web and feed them directly to databases like h2 and sqlite.
@@ -105,16 +111,35 @@ Below are the MCP components provided by this server.
 ### Tools 
 
 * **read_query** - do a SELECT query on the database
-* **write_query** - do a INSERT, UPDATE, DELETE query on the database
-* **create_table** - create a table in the database
+* **write_query** - do a INSERT, UPDATE, DELETE query on the database (disabled in read-only mode)
+* **create_table** - create a table in the database (disabled in read-only mode)
 * **list_tables** - list all tables in the database
 * **describe_table** - describe a table
+* **database_info** - get information about the database including read-only mode status
+
+#### Read-Only Mode
+
+When the server is configured with `--jdbc.readonly=true`, the following tools are disabled:
+- `write_query` (INSERT, UPDATE, DELETE operations)
+- `create_table` (table creation)
+
+This provides a safe way to explore and query databases without risk of accidental data modification.
+
+The read-only status can be checked using the `database_info` tool, which will include:
+```json
+{
+  "mcp_server_readonly_mode": "true",
+  ...
+}
+```
 
 ### Prompts
 
 * **jdbc_demo** - example prompt to get started exploring the server (similar to the one in sqllite MCP)
 
 ## Claude Desktop Config and [mcp-cli](https://github.com/chrishayuk/mcp-cli)
+
+### JBang Configuration
 
 Add this to your `claude_desktop_config.json` or `server_config.json` file:
 
@@ -126,6 +151,48 @@ Add this to your `claude_desktop_config.json` or `server_config.json` file:
       "args": [
         "jdbc@quarkiverse/quarkus-mcp-servers",
         "[jdbc_url]"
+      ]
+    }
+  }
+}
+```
+
+### Docker Configuration
+
+For Docker-based deployments, you can use the following configurations:
+
+**Standard access (read/write):**
+```json
+{
+  "mcpServers": {
+    "jdbc-oracle-docker": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm", "--network", "host",
+        "mcp-servers:latest", "jdbc",
+        "--jdbc.url=jdbc:oracle:thin:@localhost:1521:xe",
+        "--jdbc.user=ORACLEUSR",
+        "--jdbc.password=ORACLEUSR",
+        "--jdbc.readonly=false"
+      ]
+    }
+  }
+}
+```
+
+**Read-only access (safe mode):**
+```json
+{
+  "mcpServers": {
+    "jdbc-oracle-docker-readonly": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm", "--network", "host",
+        "mcp-servers:latest", "jdbc",
+        "--jdbc.url=jdbc:oracle:thin:@localhost:1521:xe",
+        "--jdbc.user=ORACLEUSR",
+        "--jdbc.password=ORACLEUSR",
+        "--jdbc.readonly=true"
       ]
     }
   }

@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "jdbc-readonly": {
+      "command": "/workspace/db-ready/quarkus-mcp-servers/jdk17/bin/java",
+      "args": [
+        "-jar",
+        "/workspace/db-ready/quarkus-mcp-servers/jdbc/target/quarkus-app/quarkus-run.jar",
+        "--jdbc.url=jdbc:postgresql://localhost:5432/mydb",
+        "--jdbc.user=username",
+        "--jdbc.password=password",
+        "--jdbc.readonly=true"
+      ]
+    }
+  }
+}

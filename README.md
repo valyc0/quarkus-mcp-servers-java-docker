@@ -54,11 +54,17 @@ Il comando creerà i JAR in:
 # Oracle (richiede Oracle su localhost:1521)
 ./docker-mcp.sh oracle
 
+# Oracle in modalità read-only (solo lettura)
+./docker-mcp.sh run jdbc --jdbc.url="jdbc:oracle:thin:@localhost:1521:xe" --jdbc.user="ORACLEUSR" --jdbc.password="ORACLEUSR" --jdbc.readonly=true
+
 # H2 in memoria
 ./docker-mcp.sh h2
 
 # Server JDBC generico
 ./docker-mcp.sh run jdbc --jdbc.url="jdbc:postgresql://localhost:5432/mydb" --jdbc.user="user" --jdbc.password="pass"
+
+# Server JDBC in modalità read-only
+./docker-mcp.sh run jdbc --jdbc.url="jdbc:postgresql://localhost:5432/mydb" --jdbc.user="user" --jdbc.password="pass" --jdbc.readonly=true
 ```
 
 ### Server Filesystem
@@ -125,7 +131,19 @@ Copia il contenuto del file generato in:
         "mcp-servers:latest", "jdbc",
         "--jdbc.url=jdbc:oracle:thin:@localhost:1521:xe",
         "--jdbc.user=ORACLEUSR",
-        "--jdbc.password=ORACLEUSR"
+        "--jdbc.password=ORACLEUSR",
+        "--jdbc.readonly=false"
+      ]
+    },
+    "jdbc-oracle-readonly": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm", "--network", "host",
+        "mcp-servers:latest", "jdbc",
+        "--jdbc.url=jdbc:oracle:thin:@localhost:1521:xe",
+        "--jdbc.user=ORACLEUSR",
+        "--jdbc.password=ORACLEUSR",
+        "--jdbc.readonly=true"
       ]
     },
     "jdbc-h2-docker": {
@@ -135,7 +153,8 @@ Copia il contenuto del file generato in:
         "mcp-servers:latest", "jdbc",
         "--jdbc.url=jdbc:h2:mem:testdb",
         "--jdbc.user=sa",
-        "--jdbc.password="
+        "--jdbc.password=",
+        "--jdbc.readonly=false"
       ]
     },
     "filesystem-docker": {
@@ -165,7 +184,21 @@ Quando esegui i server localmente senza Docker, usa questa configurazione:
           "/workspace/db-ready/quarkus-mcp-servers/jdbc/target/mcp-server-jdbc-universal-999-SNAPSHOT.jar",
           "--jdbc.url=jdbc:oracle:thin:@localhost:1521:xe",
           "--jdbc.user=ORACLEUSR",
-          "--jdbc.password=ORACLEUSR"
+          "--jdbc.password=ORACLEUSR",
+          "--jdbc.readonly=false"
+        ],
+        "cwd": "/workspace/db-ready/quarkus-mcp-servers/jdbc"
+      },
+      "jdbc-oracle-readonly": {
+        "type": "stdio",
+        "command": "/workspace/db-ready/quarkus-mcp-servers/jdk17/bin/java",
+        "args": [
+          "-jar",
+          "/workspace/db-ready/quarkus-mcp-servers/jdbc/target/mcp-server-jdbc-universal-999-SNAPSHOT.jar",
+          "--jdbc.url=jdbc:oracle:thin:@localhost:1521:xe",
+          "--jdbc.user=ORACLEUSR",
+          "--jdbc.password=ORACLEUSR",
+          "--jdbc.readonly=true"
         ],
         "cwd": "/workspace/db-ready/quarkus-mcp-servers/jdbc"
       },
@@ -177,7 +210,8 @@ Quando esegui i server localmente senza Docker, usa questa configurazione:
           "/workspace/db-ready/quarkus-mcp-servers/jdbc/target/mcp-server-jdbc-universal-999-SNAPSHOT.jar",
           "--jdbc.url=jdbc:h2:mem:testdb",
           "--jdbc.user=sa",
-          "--jdbc.password="
+          "--jdbc.password=",
+          "--jdbc.readonly=false"
         ],
         "cwd": "/workspace/db-ready/quarkus-mcp-servers/jdbc"
       },
@@ -236,15 +270,75 @@ Il server JDBC supporta tutti i database con driver JDBC:
 - **SQL Server** - `jdbc:sqlserver://host:port;databaseName=db`
 - **MariaDB** - `jdbc:mariadb://host:port/database`
 
+## 🔒 Modalità Read-Only per Server JDBC
+
+Il server JDBC supporta una modalità **read-only** che permette di esplorare e interrogare i database senza rischio di modifiche accidentali.
+
+### Funzionalità in Modalità Read-Only
+
+**✅ Operazioni Permesse:**
+- `read_query` - Esecuzione di query SELECT
+- `list_tables` - Visualizzazione tabelle
+- `describe_table` - Descrizione struttura tabelle  
+- `database_info` - Informazioni database (include stato read-only)
+
+**❌ Operazioni Bloccate:**
+- `write_query` - INSERT, UPDATE, DELETE
+- `create_table` - Creazione tabelle
+
+### Come Attivare la Modalità Read-Only
+
+#### Docker:
+```bash
+./docker-mcp.sh run jdbc \
+  --jdbc.url="jdbc:oracle:thin:@localhost:1521:xe" \
+  --jdbc.user="ORACLEUSR" \
+  --jdbc.password="ORACLEUSR" \
+  --jdbc.readonly=true
+```
+
+#### Esecuzione Locale:
+```bash
+java -jar jdbc/target/mcp-server-jdbc-universal-999-SNAPSHOT.jar \
+  --jdbc.url="jdbc:h2:mem:testdb" \
+  --jdbc.user="sa" \
+  --jdbc.password="" \
+  --jdbc.readonly=true
+```
+
+### Verifica Stato Read-Only
+
+Usa il tool `database_info` per verificare lo stato:
+```json
+{
+  "database_product_name": "Oracle",
+  "mcp_server_readonly_mode": "true",
+  "read_only": "false",
+  ...
+}
+```
+
+**Nota:** `mcp_server_readonly_mode` indica la modalità del server MCP, mentre `read_only` indica se il database stesso è in sola lettura.
+
 ## 🔧 Esecuzione Locale (senza Docker)
 
 ### Server JDBC
 ```bash
 source jdk17/jdk-env.sh
+
+# Modalità standard (read/write)
 java -jar jdbc/target/mcp-server-jdbc-universal-999-SNAPSHOT.jar \
   --jdbc.url="jdbc:h2:mem:testdb" \
   --jdbc.user="sa" \
-  --jdbc.password=""
+  --jdbc.password="" \
+  --jdbc.readonly=false
+
+# Modalità read-only (solo lettura)
+java -jar jdbc/target/mcp-server-jdbc-universal-999-SNAPSHOT.jar \
+  --jdbc.url="jdbc:h2:mem:testdb" \
+  --jdbc.user="sa" \
+  --jdbc.password="" \
+  --jdbc.readonly=true
 ```
 
 ### Server Filesystem
