@@ -1,0 +1,45 @@
+{
+  "mcpServers": {
+    "jdbc-oracle-docker": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm", "--network", "host",
+        "mcp-servers:latest", "jdbc",
+        "--jdbc.url=jdbc:oracle:thin:@localhost:1521:xe",
+        "--jdbc.user=ORACLEUSR",
+        "--jdbc.password=ORACLEUSR"
+      ]
+    },
+    "jdbc-h2-docker": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm", "-p", "3000:3000",
+        "mcp-servers:latest", "jdbc",
+        "--jdbc.url=jdbc:h2:mem:testdb",
+        "--jdbc.user=sa",
+        "--jdbc.password="
+      ]
+    },
+    "filesystem-docker": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm", "-v", "/tmp:/mnt/shared",
+        "mcp-servers:latest", "filesystem", "/mnt/shared"
+      ]
+    },
+    "jvminsight-docker": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "mcp-servers:latest", "jvminsight"
+      ]
+    },
+    "containers-docker": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm", "-v", "/var/run/docker.sock:/var/run/docker.sock",
+        "mcp-servers:latest", "containers"
+      ]
+    }
+  }
+}

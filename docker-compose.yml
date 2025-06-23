@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # MCP JDBC Server per Oracle
+  mcp-jdbc-oracle:
+    build: .
+    image: mcp-servers:latest
+    container_name: mcp-jdbc-oracle
+    network_mode: host
+    stdin_open: true
+    tty: true
+    command: >
+      jdbc
+      --jdbc.url=jdbc:oracle:thin:@localhost:1521:xe
+      --jdbc.user=ORACLEUSR
+      --jdbc.password=ORACLEUSR
+    depends_on:
+      - oracle-db
+    restart: unless-stopped
+
+  # MCP JDBC Server per H2 (in memoria)
+  mcp-jdbc-h2:
+    build: .
+    image: mcp-servers:latest
+    container_name: mcp-jdbc-h2
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+    command: >
+      jdbc
+      --jdbc.url=jdbc:h2:mem:testdb
+      --jdbc.user=sa
+      --jdbc.password=
+    restart: unless-stopped
+
+  # MCP Filesystem Server
+  mcp-filesystem:
+    build: .
+    image: mcp-servers:latest
+    container_name: mcp-filesystem
+    volumes:
+      - /tmp:/mnt/shared
+      - ./data:/mnt/data
+    stdin_open: true
+    tty: true
+    command: filesystem /mnt/shared /mnt/data
+    restart: unless-stopped
+
+  # MCP JVM Insight Server
+  mcp-jvminsight:
+    build: .
+    image: mcp-servers:latest
+    container_name: mcp-jvminsight
+    stdin_open: true
+    tty: true
+    command: jvminsight
+    restart: unless-stopped
+
+  # MCP Containers Server (per Docker management)
+  mcp-containers:
+    build: .
+    image: mcp-servers:latest
+    container_name: mcp-containers
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    stdin_open: true
+    tty: true
+    command: containers
+    restart: unless-stopped
+
+  # Database Oracle per testing (opzionale)
+  oracle-db:
+    image: gvenzl/oracle-xe:21-slim
+    container_name: oracle-xe
+    environment:
+      ORACLE_PASSWORD: ORACLEUSR
+      ORACLE_DATABASE: xe
+      ORACLE_USER: ORACLEUSR
+      ORACLE_USER_PASSWORD: ORACLEUSR
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+    restart: unless-stopped
+
+volumes:
+  oracle_data:

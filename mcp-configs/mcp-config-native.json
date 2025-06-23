@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "jdbc": {
+      "command": "/workspace/db-ready/quarkus-mcp-servers/jdbc/target/mcp-server-jdbc-999-SNAPSHOT-runner",
+      "args": [
+        "--jdbc.url=jdbc:h2:mem:testdb",
+        "--jdbc.user=sa",
+        "--jdbc.password="
+      ]
+    },
+    "filesystem": {
+      "command": "/workspace/db-ready/quarkus-mcp-servers/filesystem/target/mcp-server-filesystem-999-SNAPSHOT-runner",
+      "args": [
+        "/tmp"
+      ]
+    },
+    "jvminsight": {
+      "command": "/workspace/db-ready/quarkus-mcp-servers/jvminsight/target/mcp-server-jvminsight-999-SNAPSHOT-runner"
+    },
+    "kubernetes": {
+      "command": "/workspace/db-ready/quarkus-mcp-servers/kubernetes/target/mcp-server-kubernetes-999-SNAPSHOT-runner"
+    },
+    "containers": {
+      "command": "/workspace/db-ready/quarkus-mcp-servers/containers/target/mcp-server-containers-999-SNAPSHOT-runner"
+    }
+  }
+}

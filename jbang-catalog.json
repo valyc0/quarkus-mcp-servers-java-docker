@@ -1,0 +1,49 @@
+{
+  "catalogs": {},
+  "aliases": {
+    "filesystem": {
+      "script-ref": "io.quarkiverse.mcp.servers:mcp-server-filesystem:RELEASE@fatjar",
+      "java": "17+"
+    },
+    "jdbc": {
+      "script-ref": "jdbc/.scripts/mcpjdbc.java",
+      "java": "17+"
+    },
+    "jfx-script": {
+      "script-ref": "jfx/src/main/java/io/quarkiverse/mcp/servers/jfx/MCPServerJFX.java"
+    },
+    "jfx": {
+      "script-ref": "io.quarkiverse.mcp.servers:mcp-server-jfx:RELEASE@fatjar",
+      "dependencies": [
+        "org.openjfx:javafx-controls:21",
+        "org.openjfx:javafx-graphics:21",
+        "org.openjfx:javafx-swing:21"
+      ],
+      "java": "17+"
+    },
+    "kubernetes": {
+      "script-ref": "io.quarkiverse.mcp.servers:mcp-server-kubernetes:RELEASE@fatjar",
+      "java": "17+"
+    },
+    "containers": {
+      "script-ref": "io.quarkiverse.mcp.servers:mcp-server-containers:RELEASE@fatjar",
+      "java": "17+"
+    },
+    "jvminsight": {
+      "script-ref": "io.quarkiverse.mcp.servers:mcp-server-jvminsight:RELEASE@fatjar",
+      "java": "17+"
+    }
+  },
+  "templates": {
+    "mcp": {
+      "file-refs": {
+        "src/main/resources/application.properties": "template/application.properties",
+        "src/main/java/io/quarkus/mcp/servers/{basename}/MCPServer{basename}.java": "template/MCPServer.java.qute",
+        "images/{basename}-demo.png": "template/demo.png",
+        "pom.xml": "template/pom.xml.qute",
+        "README.md": "template/README.md.qute"
+      },
+      "properties": {}
+    }
+  }
+}

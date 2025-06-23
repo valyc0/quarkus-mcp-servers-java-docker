@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "jdbc": {
+      "command": "/workspace/db-ready/quarkus-mcp-servers/jdk17/bin/java",
+      "args": [
+        "-jar",
+        "/workspace/db-ready/quarkus-mcp-servers/jdbc/target/quarkus-app/quarkus-run.jar",
+        "--jdbc.url=jdbc:mysql://localhost:3306/mydb",
+        "--jdbc.user=username",
+        "--jdbc.password=password"
+      ]
+    }
+  }
+}

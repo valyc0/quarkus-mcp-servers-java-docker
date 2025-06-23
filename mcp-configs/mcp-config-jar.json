@@ -1,0 +1,43 @@
+{
+  "mcpServers": {
+    "jdbc": {
+      "command": "/workspace/db-ready/quarkus-mcp-servers/jdk17/bin/java",
+      "args": [
+        "-jar",
+        "/workspace/db-ready/quarkus-mcp-servers/jdbc/target/quarkus-app/quarkus-run.jar",
+        "--jdbc.url=jdbc:h2:mem:testdb",
+        "--jdbc.user=sa",
+        "--jdbc.password="
+      ]
+    },
+    "filesystem": {
+      "command": "/workspace/db-ready/quarkus-mcp-servers/jdk17/bin/java",
+      "args": [
+        "-jar",
+        "/workspace/db-ready/quarkus-mcp-servers/filesystem/target/quarkus-app/quarkus-run.jar",
+        "/tmp"
+      ]
+    },
+    "jvminsight": {
+      "command": "/workspace/db-ready/quarkus-mcp-servers/jdk17/bin/java",
+      "args": [
+        "-jar",
+        "/workspace/db-ready/quarkus-mcp-servers/jvminsight/target/quarkus-app/quarkus-run.jar"
+      ]
+    },
+    "kubernetes": {
+      "command": "/workspace/db-ready/quarkus-mcp-servers/jdk17/bin/java",
+      "args": [
+        "-jar",
+        "/workspace/db-ready/quarkus-mcp-servers/kubernetes/target/quarkus-app/quarkus-run.jar"
+      ]
+    },
+    "containers": {
+      "command": "/workspace/db-ready/quarkus-mcp-servers/jdk17/bin/java",
+      "args": [
+        "-jar",
+        "/workspace/db-ready/quarkus-mcp-servers/containers/target/quarkus-app/quarkus-run.jar"
+      ]
+    }
+  }
+}
