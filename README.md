@@ -63,6 +63,12 @@ Il comando creerà i JAR in:
 # Server JDBC generico
 ./docker-mcp.sh run jdbc --jdbc.url="jdbc:postgresql://localhost:5432/mydb" --jdbc.user="user" --jdbc.password="pass"
 
+# MySQL in modalità read-only
+./docker-mcp.sh run jdbc --jdbc.url="jdbc:mysql://localhost:3306/mydb" --jdbc.user="root" --jdbc.password="toor" --jdbc.readonly=true
+
+# PostgreSQL in modalità read-only
+./docker-mcp.sh run jdbc --jdbc.url="jdbc:postgresql://localhost:5432/mydb" --jdbc.user="postgres" --jdbc.password="postgres" --jdbc.readonly=true
+
 # Server JDBC in modalità read-only
 ./docker-mcp.sh run jdbc --jdbc.url="jdbc:postgresql://localhost:5432/mydb" --jdbc.user="user" --jdbc.password="pass" --jdbc.readonly=true
 ```
@@ -157,6 +163,38 @@ Copia il contenuto del file generato in:
         "--jdbc.readonly=false"
       ]
     },
+    "jdbc-mysql-docker": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--network",
+        "host",
+        "mcp-servers:latest",
+        "jdbc",
+        "--jdbc.url=jdbc:mysql://localhost:3306/mydb",
+        "--jdbc.user=root",
+        "--jdbc.password=toor",
+        "--jdbc.readonly=true"
+      ]
+    },
+    "jdbc-postgres-docker": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "--network",
+        "host",
+        "mcp-servers:latest",
+        "jdbc",
+        "--jdbc.url=jdbc:postgresql://localhost:5432/mydb",
+        "--jdbc.user=postgres",
+        "--jdbc.password=postgres",
+        "--jdbc.readonly=true"
+      ]
+    },
     "filesystem-docker": {
       "command": "docker",
       "args": [
@@ -212,6 +250,32 @@ Quando esegui i server localmente senza Docker, usa questa configurazione:
           "--jdbc.user=sa",
           "--jdbc.password=",
           "--jdbc.readonly=false"
+        ],
+        "cwd": "/workspace/db-ready/quarkus-mcp-servers/jdbc"
+      },
+      "jdbc-mysql": {
+        "type": "stdio",
+        "command": "/workspace/db-ready/quarkus-mcp-servers/jdk17/bin/java",
+        "args": [
+          "-jar",
+          "/workspace/db-ready/quarkus-mcp-servers/jdbc/target/mcp-server-jdbc-universal-999-SNAPSHOT.jar",
+          "--jdbc.url=jdbc:mysql://localhost:3306/mydb",
+          "--jdbc.user=root",
+          "--jdbc.password=toor",
+          "--jdbc.readonly=true"
+        ],
+        "cwd": "/workspace/db-ready/quarkus-mcp-servers/jdbc"
+      },
+      "jdbc-postgres": {
+        "type": "stdio",
+        "command": "/workspace/db-ready/quarkus-mcp-servers/jdk17/bin/java",
+        "args": [
+          "-jar",
+          "/workspace/db-ready/quarkus-mcp-servers/jdbc/target/mcp-server-jdbc-universal-999-SNAPSHOT.jar",
+          "--jdbc.url=jdbc:postgresql://localhost:5432/mydb",
+          "--jdbc.user=postgres",
+          "--jdbc.password=postgres",
+          "--jdbc.readonly=true"
         ],
         "cwd": "/workspace/db-ready/quarkus-mcp-servers/jdbc"
       },
